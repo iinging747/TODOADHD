@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>그렇게 안 살기 생존 체크메이트</title>
+    <style>
+      :root{--ink:#293044;--denim:#5b7bd5;--mist:#f7f8fc;--cloud:#eef4ff;--peach:#ffe6dc;--butter:#fff3c9;--lilac:#eee6ff;--leaf:#e2f6e6;--coral:#ff8a7a}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#fff,var(--mist));color:var(--ink);font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif}.app{width:min(100%,430px);margin:0 auto;min-height:100vh;padding:20px 20px 96px;background:rgba(255,255,255,.7)}.card{border:1px solid rgba(88,94,125,.12);background:rgba(255,255,255,.9);border-radius:8px;box-shadow:0 12px 26px rgba(54,60,88,.08);padding:15px}.eyebrow{color:var(--denim);font-size:12px;font-weight:900;margin:0 0 4px}h1{font-size:22px;line-height:1.25;margin:0}h2{font-size:17px;margin:0}.muted{color:#6d7488;font-size:13px;line-height:1.65}.row{display:flex;gap:10px;overflow:auto;padding-bottom:8px}.sticker{width:155px;flex:0 0 auto;text-align:center}.girl{font-size:54px}.bubble{display:inline-block;border-radius:999px;background:var(--cloud);padding:6px 10px;font-size:11px;font-weight:900}.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,430px);display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:8px 12px 16px;background:rgba(255,255,255,.94);border-top:1px solid #edf0f6}.nav button{height:54px;border:0;border-radius:8px;background:transparent;font-size:11px;font-weight:900;color:#737b90}.nav button.active{background:var(--ink);color:#fff}.tab{display:none}.tab.active{display:block}textarea{width:100%;min-height:150px;border:1px solid #edf0f6;border-radius:8px;background:var(--mist);padding:14px;resize:none}button.primary{width:100%;margin-top:10px;border:0;border-radius:8px;background:var(--ink);color:#fff;padding:14px;font-weight:900}
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header><p class="eyebrow">AI 세컨드 브레인</p><h1>그렇게 안 살기<br/>생존 체크메이트</h1></header>
+      <section id="home" class="tab active">
+        <article class="card" style="margin-top:20px"><p class="eyebrow">현재 감정</p><h2 id="mood">머릿속이 시끄럽지만 아직 가능</h2><p class="muted">하루가 밀려도 흐름은 죽지 않아요. 다시 이어서 하면 돼요.</p></article>
+        <section style="margin-top:20px"><p class="eyebrow">상황별 스티커 짤</p><h2>내 하루를 장면으로 저장하기</h2><div class="row" id="stickers" style="margin-top:10px"></div></section>
+        <section style="margin-top:20px"><p class="eyebrow">현재 굴러가는 흐름들</p><div class="row" id="flows" style="margin-top:10px"></div></section>
+      </section>
+      <section id="diary" class="tab" style="margin-top:20px"><p class="eyebrow">나만 보는 매일 일기</p><h2>잘 쓴 글 말고, 살아있던 흔적</h2><article class="card" style="margin-top:12px"><textarea id="diaryText" placeholder="오늘 있었던 일, 도망친 일, 의외로 해낸 일까지. 문장 아니어도 괜찮아요."></textarea><button class="primary" onclick="commentDiary()">내일 아침 코멘트 남기기</button></article><article class="card" style="margin-top:12px"><p class="eyebrow">다음날 AI 코멘트</p><p class="muted" id="diaryComment">아직 오늘의 일기가 없어요. 있었던 일 하나랑 기분 하나만 남겨도 충분해요.</p></article></section>
+      <section id="focus" class="tab" style="margin-top:20px"><article class="card"><p class="eyebrow">집중모드 ON</p><h2>5분만 하기</h2><p class="muted">몸만 일으켜도 오늘 흐름은 이어집니다.</p><button class="primary" onclick="document.getElementById('mood').textContent='작게 해냈음. 오늘은 이걸로도 흐름 유지'">첫 5분 시작</button></article></section>
+      <section id="moodTab" class="tab" style="margin-top:20px"><article class="card"><p class="eyebrow">감정 기반 일정 정리</p><textarea id="dump" placeholder="하소연해도 괜찮아요."></textarea><button class="primary" onclick="analyze()">AI처럼 정리하기</button><p class="muted" id="analysis" style="margin-top:10px"></p></article></section>
+      <section id="money" class="tab" style="margin-top:20px"><article class="card"><p class="eyebrow">빚 청산 시스템</p><h2>39% 줄어듦</h2><p class="muted">오늘은 자동이체 날짜만 확인하면 충분해요.</p></article></section>
+    </main>
+    <nav class="nav"><button class="active" onclick="show('home',this)">홈</button><button onclick="show('home',this)">흐름</button><button onclick="show('focus',this)">집중</button><button onclick="show('moodTab',this)">감정</button><button onclick="show('diary',this)">일기</button><button onclick="show('money',this)">가계부</button></nav>
+    <script>
+      const situations=[['오늘 계획 세우기','오늘도 화이팅!','💻'],['투두리스트 작성','할 일 체크!','📝'],['AI 공부','AI 공부 진입!','📚'],['영상 편집하기','영상 편집중!','🖥'],['빚 현황 정리하기','빚, 꼭 갚는다!','₩'],['스스로 칭찬해주기','나 잘하고 있어!','♡']];
+      document.getElementById('stickers').innerHTML=situations.map(s=>`<article class="card sticker"><span class="bubble">${s[1]}</span><div class="girl">👩🏻‍💻</div><div style="font-size:26px">${s[2]}</div><h3>${s[0]}</h3></article>`).join('');
+      document.getElementById('flows').innerHTML=['영상 작업','투자','AI 공부','빚 청산','건강'].map(x=>`<article class="card sticker"><h3>${x}</h3><p class="muted">다음 제일 쉬운 행동만 보기</p></article>`).join('');
+      function show(id,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+      function analyze(){const t=document.getElementById('dump').value;document.getElementById('analysis').textContent=/불안|싫|스트레스|힘들/.test(t)?'과부하 신호가 있어요. 오늘은 가장 쉬운 행동 하나만 하자.':'정리 가능한 상태예요. 지금 떠오른 걸 흐름 하나에 붙이기.'}
+      function commentDiary(){const t=document.getElementById('diaryText').value;document.getElementById('diaryComment').textContent=t.trim()?'다정하게 말하면, 너는 꽤 많이 느끼고 있었고. 냉철하게 말하면, 오늘 필요한 건 해석보다 다음 행동 하나예요.':'빈칸이어도 괜찮아요. 내일은 한 줄만 다시 시작하면 됩니다.'}
+    </script>
+  </body>
+</html>
