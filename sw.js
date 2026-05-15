@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sprite-diary-font-v11";
+const CACHE_NAME = "todoadhd-focus-sticker-stable-v12";
 
 const ASSETS = [
   "./",
