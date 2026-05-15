@@ -1,0 +1,6 @@
+/* app-daily-v23 */
+[data-view="stickers"]{display:none!important}
+.daily-note{margin-top:10px;padding:12px 13px;border-radius:18px;background:rgba(255,255,255,.68);border:1px solid rgba(255,255,255,.75);font-family:var(--body);font-size:13px;line-height:1.55;color:var(--ink);word-break:keep-all}
+.daily-note b{display:block;margin-bottom:4px;font-family:var(--font);font-size:18px;color:var(--ink)}
+.weather-advice{display:grid;gap:8px;margin-top:10px}.weather-advice .mini-advice{padding:10px 11px;border-radius:16px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.74);font-family:var(--body);font-size:12px;line-height:1.5;color:var(--muted);word-break:keep-all}.weather-advice .mini-advice strong{display:block;font-family:var(--font);font-size:16px;color:var(--ink);margin-bottom:2px}
+@media(max-width:768px){.daily-note{font-size:12px}.daily-note b{font-size:16px}.weather-advice .mini-advice{font-size:12px}}
