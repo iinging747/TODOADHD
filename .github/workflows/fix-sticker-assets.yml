@@ -1,0 +1,100 @@
+name: Fix sticker asset names
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  normalize-stickers:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rename sticker PNG files and fix paths
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rename_if_exists() {
+            local old="$1"
+            local new="$2"
+            local old_path="public/stickers/$old"
+            local new_path="public/stickers/$new"
+            if [ -f "$old_path" ] && [ ! -f "$new_path" ]; then
+              git mv "$old_path" "$new_path"
+            elif [ -f "$old_path" ] && [ -f "$new_path" ]; then
+              git rm "$old_path"
+            fi
+          }
+
+          mkdir -p public/stickers
+
+          rename_if_exists "계획세우기.png" "planning.png"
+          rename_if_exists "투두리스트.png" "write-todo-list.png"
+          rename_if_exists "투두리스트 작성.png" "write-todo-list.png"
+          rename_if_exists "공부하기.png" "study.png"
+          rename_if_exists "ai공부.png" "ai-study.png"
+          rename_if_exists "에이아이공부.png" "ai-study.png"
+          rename_if_exists "영상편집.png" "video-editing.png"
+          rename_if_exists "트위터서칭.png" "twitter-search.png"
+          rename_if_exists "음모론 정보.png" "conspiracy-research.png"
+          rename_if_exists "주식코인차트보기.png" "stock-crypto-chart.png"
+          rename_if_exists "주식코인투자공부.png" "investing-study.png"
+          rename_if_exists "책읽기.png" "reading.png"
+          rename_if_exists "산책하기.png" "walking.png"
+          rename_if_exists "산책하기'.png" "walking.png"
+          rename_if_exists "영화보기.png" "watch-movie.png"
+          rename_if_exists "드라마 정주행.png" "binge-drama.png"
+          rename_if_exists "가계부.png" "budget.png"
+          rename_if_exists "빚상환.png" "debt-payment.png"
+          rename_if_exists "빚갚음.png" "debt-payment.png"
+          rename_if_exists "저축.png" "savings.png"
+          rename_if_exists "피부관리.png" "skincare.png"
+          rename_if_exists "일기쓰기.png" "journaling.png"
+          rename_if_exists "취짐.png" "sleep.png"
+          rename_if_exists "쇼핑.png" "shopping.png"
+          rename_if_exists "카페에서 작업.png" "work-at-cafe.png"
+          rename_if_exists "새벽작업.png" "late-night-work.png"
+          rename_if_exists "콘텐츠회의.png" "content-meeting.png"
+          rename_if_exists "클라이언트커뮤니케이션.png" "client-communication.png"
+          rename_if_exists "셀프칭찬.png" "self-praise.png"
+          rename_if_exists "하루마무리.png" "day-wrap-up.png"
+          rename_if_exists "데이트.png" "date.png"
+          rename_if_exists "여행계획세우기.png" "travel-planning.png"
+          rename_if_exists "친구만나기.png" "meet-friends.png"
+          rename_if_exists "코인미팅.png" "crypto-meeting.png"
+          rename_if_exists "완료도장.png" "completion-stamp.png"
+
+          if [ ! -f public/stickers/workout.png ] && [ -f public/stickers/walking.png ]; then
+            cp public/stickers/walking.png public/stickers/workout.png
+            git add public/stickers/workout.png
+          fi
+
+          if [ -f calendar.html ]; then
+            perl -0pi -e 's#src="/stickers/\$\{s\.file\}"#src="./public/stickers/${s.file}"#g' calendar.html
+          fi
+
+          if [ -f sw.js ]; then
+            perl -0pi -e 's#const CACHE_NAME = "[^"]+";#const CACHE_NAME = "todoadhd-sticker-assets-v16";#' sw.js
+          fi
+
+          git add calendar.html sw.js public/stickers || true
+
+          if git diff --cached --quiet; then
+            echo "No sticker asset changes needed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix sticker file names and paths"
+          git push origin HEAD:main
+          git push origin HEAD:gh-pages --force
