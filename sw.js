@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-local-auth-v29";
+const CACHE_NAME = "todoadhd-sticker-assets-v16";
 
 const ASSETS = [
   "./",
