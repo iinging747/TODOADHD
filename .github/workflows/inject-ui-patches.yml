@@ -1,0 +1,67 @@
+name: Inject UI patch assets
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inject:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Inject patch assets into calendar
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/inject.py <<'PY'
+from pathlib import Path
+import re
+
+cal = Path('calendar.html')
+text = cal.read_text(encoding='utf-8')
+links = [
+    ('data-diary-patch-v21', '<link rel="stylesheet" href="./diary-patch.css?v=21" data-diary-patch-v21>'),
+    ('data-app-polish-v22', '<link rel="stylesheet" href="./app-polish-v22.css?v=22" data-app-polish-v22>'),
+    ('data-app-daily-v23', '<link rel="stylesheet" href="./app-daily-v23.css?v=23" data-app-daily-v23>'),
+]
+scripts = [
+    ('data-diary-patch-v21', '<script src="./diary-patch.js?v=21" data-diary-patch-v21></script>'),
+    ('data-app-polish-v22', '<script src="./app-polish-v22.js?v=22" data-app-polish-v22></script>'),
+    ('data-app-daily-v23', '<script src="./app-daily-v23.js?v=23" data-app-daily-v23></script>'),
+]
+for marker, tag in links:
+    if marker not in text:
+        text = text.replace('</head>', tag + '\n</head>')
+for marker, tag in scripts:
+    if marker not in text:
+        text = text.replace('</body>', tag + '\n</body>')
+cal.write_text(text, encoding='utf-8')
+
+sw = Path('sw.js')
+if sw.exists():
+    s = sw.read_text(encoding='utf-8')
+    s = re.sub(r'const CACHE_NAME = "[^"]+";', 'const CACHE_NAME = "todoadhd-daily-v23-html";', s)
+    sw.write_text(s, encoding='utf-8')
+PY
+          python /tmp/inject.py
+      - name: Commit and deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add calendar.html sw.js
+          if git diff --cached --quiet; then
+            echo "No UI patch injection changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "inject daily briefing and diary ui patches"
+          git push origin HEAD:main
+          git push origin HEAD:gh-pages --force
