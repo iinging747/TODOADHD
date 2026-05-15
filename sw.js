@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-diary-patch-v21";
+const CACHE_NAME = "todoadhd-weather-autogps-v18";
 
 const ASSETS = [
   "./",
