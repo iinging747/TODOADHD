@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-pwa-diary-aligned-v9";
+const CACHE_NAME = "todoadhd-pomodoro-focus-v10";
 
 const ENGLISH_STICKERS = [
   "budget.png",
