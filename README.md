@@ -32,3 +32,5 @@ node serve-preview.mjs
 그 다음 브라우저에서 `http://127.0.0.1:4173`을 열면 됩니다.
 
 # TODOADHD
+
+배포 패치 트리거: diary-photos-v19
