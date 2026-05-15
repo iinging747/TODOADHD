@@ -24,59 +24,17 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+          import base64
           import re
           cal = Path('calendar.html')
           text = cal.read_text(encoding='utf-8')
-
-          auto_js = r'''
-/* weather-autogps-v18 */
-let weatherAutoStarted=false;
-function setWeatherStatus(message){weather={...(weather||{}),temp:weather?.temp??'--',humidity:weather?.humidity??'--',rain:weather?.rain??0,pm25:weather?.pm25??null,advice:message,at:Date.now(),pending:true};store('todoAdhdWeather',weather);try{render()}catch(e){}}
-const loadWeatherOriginal=loadWeather;
-loadWeather=async function(){
-  if(!navigator.geolocation){setWeatherStatus('이 브라우저는 위치 기능을 지원하지 않아.');return}
-  setWeatherStatus('GPS 위치를 확인하는 중이야. 권한창이 뜨면 허용을 눌러줘.');
-  navigator.geolocation.getCurrentPosition(async p=>{
-    try{
-      const {latitude,longitude}=p.coords;
-      const forecastUrl=`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,rain,precipitation&timezone=auto`;
-      const airUrl=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=pm2_5,pm10&timezone=auto`;
-      const [fj,aj]=await Promise.all([fetch(forecastUrl).then(r=>r.json()),fetch(airUrl).then(r=>r.json()).catch(()=>({current:{}}))]);
-      const c=fj.current||{},aq=aj.current||{};
-      const temp=Math.round(c.temperature_2m??0), humidity=c.relative_humidity_2m??'--', rain=c.rain??c.precipitation??0, pm25=aq.pm2_5?Math.round(aq.pm2_5):null;
-      let advice=rain>0?'비 와서 이동시간을 10분 더 잡는 게 좋아.':temp>=27?'더워서 오후 집중력이 떨어질 수 있어. 중요한 건 오전 쪽으로.':pm25&&pm25>35?'미세먼지가 높은 편이야. 산책보다 실내 루틴이 나아.':'날씨는 무난해. 카페 작업이나 짧은 산책을 끼워도 좋아.';
-      weather={temp,humidity,rain,pm25,advice,at:Date.now(),lat:latitude,lon:longitude,pending:false};
-      store('todoAdhdWeather',weather);render();toast('GPS로 오늘 날씨 불러왔어.');
-    }catch(e){setWeatherStatus('날씨 서버 연결이 잠깐 불안정해. 버튼으로 다시 시도해줘.');}
-  },err=>{
-    const msg=err.code===1?'위치 권한이 막혀 있어. 주소창 왼쪽 자물쇠에서 위치 허용으로 바꾸면 자동 날씨가 켜져.':'GPS 위치를 못 잡았어. 실내면 잠깐 후 다시 시도해줘.';
-    setWeatherStatus(msg);
-  },{enableHighAccuracy:false,timeout:12000,maximumAge:30*60*1000});
-}
-async function autoLoadWeather(){
-  if(weatherAutoStarted)return;
-  if(weather?.at && Date.now()-weather.at<1000*60*60*2 && !weather.pending)return;
-  weatherAutoStarted=true;
-  if(navigator.permissions?.query){
-    try{
-      const perm=await navigator.permissions.query({name:'geolocation'});
-      if(perm.state==='denied'){setWeatherStatus('위치 권한이 꺼져 있어. 주소창 왼쪽 자물쇠에서 위치를 허용해줘.');return}
-      setTimeout(()=>loadWeather(),700);
-      perm.onchange=()=>{if(perm.state==='granted')loadWeather()};
-      return;
-    }catch(e){}
-  }
-  setTimeout(()=>loadWeather(),700);
-}
-const renderBeforeWeatherAuto=render;
-render=function(){renderBeforeWeatherAuto();const btn=document.querySelector('#weatherBtn');if(btn)btn.onclick=loadWeather;}
-          '''
+          encoded = 'Ci8qIHdlYXRoZXItYXV0b2dwcy12MTggKi8KbGV0IHdlYXRoZXJBdXRvU3RhcnRlZD1mYWxzZTsKZnVuY3Rpb24gc2V0V2VhdGhlclN0YXR1cyhtZXNzYWdlKXt3ZWF0aGVyPXsuLi4od2VhdGhlcnx8e30pLHRlbXA6d2VhdGhlcj8udGVtcD8/Jy0tJyxodW1pZGl0eTp3ZWF0aGVyPy5odW1pZGl0eT8/Jy0tJyxyYWluOndlYXRoZXI/LnJhaW4/PzAscG0yNTp3ZWF0aGVyPy5wbTI1Pz9udWxsLGFkdmljZTptZXNzYWdlLGF0OkRhdGUubm93KCkscGVuZGluZzp0cnVlfTtzdG9yZSgndG9kb0FkaGRXZWF0aGVyJyx3ZWF0aGVyKTt0cnl7cmVuZGVyKCl9Y2F0Y2goZSl7fX0KbG9hZFdlYXRoZXI9YXN5bmMgZnVuY3Rpb24oKXsKICBpZighbmF2aWdhdG9yLmdlb2xvY2F0aW9uKXtzZXRXZWF0aGVyU3RhdHVzKCfsnbQg67iM65287Jqw7KCA64qUIOychOy5mCDquLDriqXsnYQg7KeA7JuQ7ZWY7KeAIOyViuyVhC4nKTtyZXR1cm59CiAgc2V0V2VhdGhlclN0YXR1cygnR1BTIOychOy5mOulvCDtmZXsnbjtlZjripQg7KSR7J207JW8LiDqtoztlZzssL3snbQg65yo66m0IO2XiOyaqeydhCDriIzrn6zspJguJyk7CiAgbmF2aWdhdG9yLmdlb2xvY2F0aW9uLmdldEN1cnJlbnRQb3NpdGlvbihhc3luYyBwPT57CiAgICB0cnl7CiAgICAgIGNvbnN0IHtsYXRpdHVkZSxsb25naXR1ZGV9PXAuY29vcmRzOwogICAgICBjb25zdCBmb3JlY2FzdFVybD1gaHR0cHM6Ly9hcGkub3Blbi1tZXRlby5jb20vdjEvZm9yZWNhc3Q/bGF0aXR1ZGU9JHtsYXRpdHVkZX0mbG9uZ2l0dWRlPSR7bG9uZ2l0dWRlfSZjdXJyZW50PXRlbXBlcmF0dXJlXzJtLHJlbGF0aXZlX2h1bWlkaXR5XzJtLHJhaW4scHJlY2lwaXRhdGlvbiZ0aW1lem9uZT1hdXRvYDsKICAgICAgY29uc3QgYWlyVXJsPWBodHRwczovL2Fpci1xdWFsaXR5LWFwaS5vcGVuLW1ldGVvLmNvbS92MS9haXItcXVhbGl0eT9sYXRpdHVkZT0ke2xhdGl0dWRlfSZsb25naXR1ZGU9JHtsb25naXR1ZGV9JmN1cnJlbnQ9cG0yXzUscG0xMCZ0aW1lem9uZT1hdXRvYDsKICAgICAgY29uc3QgW2ZqLGFqXT1hd2FpdCBQcm9taXNlLmFsbChbZmV0Y2goZm9yZWNhc3RVcmwpLnRoZW4ocj0+ci5qc29uKCkpLGZldGNoKGFpclVybCkudGhlbihyPT5yLmpzb24oKSkuY2F0Y2goKCk9Pih7Y3VycmVudDp7fX0pKV0pOwogICAgICBjb25zdCBjPWZqLmN1cnJlbnR8fHt9LGFxPWFqLmN1cnJlbnR8fHt9OwogICAgICBjb25zdCB0ZW1wPU1hdGgucm91bmQoYy50ZW1wZXJhdHVyZV8ybT8/MCksIGh1bWlkaXR5PWMucmVsYXRpdmVfaHVtaWRpdHlfMm0/PyctLScsIHJhaW49Yy5yYWluPz9jLnByZWNpcGl0YXRpb24/PzAsIHBtMjU9YXEucG0yXzU/TWF0aC5yb3VuZChhcS5wbTJfNSk6bnVsbDsKICAgICAgbGV0IGFkdmljZT1yYWluPjA/J+u5hCDsmYDshJwg7J2064+Z7Iuc6rCE7J2EIDEw67aEIOuNlCDsnqHripQg6rKMIOyii+yVhC4nOnRlbXA+PTI3PyfrjZTsm4zshJwg7Jik7ZuEIOynkeykkeugpeydtCDrlqjslrTsp4gg7IiYIOyeiOyWtC4g7KSR7JqU7ZWcIOqxtCDsmKTsoIQg7Kq97Jy866GcLic6cG0yNSYmcG0yNT4zNT8n66+47IS466i87KeA6rCAIOuGkuydgCDtjrjsnbTslbTslbwuIOyCsOyxheuztOuLpCDsi6TrgrQg66Oo7Yu07J20IOuCmOyVhC4nOifrgqDslKjripQg66y064Kc7ZW0LiDsubTtjpgg7J6R7JeF7J2064KYIOynp+ydgCDsgrDssYXsnYQg64G87JuM64+EIOyii+yVhC4nOwogICAgICB3ZWF0aGVyPXt0ZW1wLGh1bWlkaXR5LHJhaW4scG0yNSxhZHZpY2UsYXQ6RGF0ZS5ub3coKSxsYXQ6bGF0aXR1ZGUsbG9uOmxvbmdpdHVkZSxwZW5kaW5nOmZhbHNlfTsKICAgICAgc3RvcmUoJ3RvZG9BZGhkV2VhdGhlcicsd2VhdGhlcik7cmVuZGVyKCk7dG9hc3QoJ0dQU+uhnCDsmKTripgg64Kg7JSoIOu2iOufrOyZlOyWtC4nKTsKICAgIH1jYXRjaChlKXtzZXRXZWF0aGVyU3RhdHVzKCfrgqDslKgg7ISc67KEIOyXsOqysOydtCDsnqDquZAg67aI7JWI7KCV7ZW0LiDrsoTtirzsnLzroZwg64uk7IucIOyLnOuPhO2VtOykmC4nKTt9CiAgfSxlcnI9PnsKICAgIGNvbnN0IG1zZz1lcnIuY29kZT09PTE/J+ychOy5mCDqtoztlZzsnbQg66eJ7ZiAIOyeiOyWtC4g7KO87IaM7LC9IOyZvOyqvSDsnpDrrLzsh6Dsl5DshJwg7JyE7LmYIO2XiOyaqeycvOuhnCDrsJTqvrjrqbQg7J6Q64+ZIOuCoOyUqOqwgCDsvJzsoLguJzonR1BTIOychOy5mOulvCDrqrsg7J6h7JWY7Ja0LiDsi6TrgrTrqbQg7J6g6rmQIO2bhCDri6Tsi5wg7Iuc64+E7ZW07KSYLic7CiAgICBzZXRXZWF0aGVyU3RhdHVzKG1zZyk7CiAgfSx7ZW5hYmxlSGlnaEFjY3VyYWN5OmZhbHNlLHRpbWVvdXQ6MTIwMDAsbWF4aW11bUFnZTozMCo2MCoxMDAwfSk7Cn0KYXN5bmMgZnVuY3Rpb24gYXV0b0xvYWRXZWF0aGVyKCl7CiAgaWYod2VhdGhlckF1dG9TdGFydGVkKXJldHVybjsKICBpZih3ZWF0aGVyPy5hdCAmJiBEYXRlLm5vdygpLXdlYXRoZXIuYXQ8MTAwMCo2MCo2MCoyICYmICF3ZWF0aGVyLnBlbmRpbmcpcmV0dXJuOwogIHdlYXRoZXJBdXRvU3RhcnRlZD10cnVlOwogIGlmKG5hdmlnYXRvci5wZXJtaXNzaW9ucz8ucXVlcnkpewogICAgdHJ5ewogICAgICBjb25zdCBwZXJtPWF3YWl0IG5hdmlnYXRvci5wZXJtaXNzaW9ucy5xdWVyeSh7bmFtZTonZ2VvbG9jYXRpb24nfSk7CiAgICAgIGlmKHBlcm0uc3RhdGU9PT0nZGVuaWVkJyl7c2V0V2VhdGhlclN0YXR1cygn7JyE7LmYIOq2jO2VnOydtCDqurzsoLgg7J6I7Ja0LiDso7zshozssL0g7Jm87Kq9IOyekOusvOyHoOyXkOyEnCDsnITsuZjrpbwg7ZeI7Jqp7ZW07KSYLicpO3JldHVybn0KICAgICAgc2V0VGltZW91dCgoKT0+bG9hZFdlYXRoZXIoKSw3MDApOwogICAgICBwZXJtLm9uY2hhbmdlPSgpPT57aWYocGVybS5zdGF0ZT09PSdncmFudGVkJylsb2FkV2VhdGhlcigpfTsKICAgICAgcmV0dXJuOwogICAgfWNhdGNoKGUpe30KICB9CiAgc2V0VGltZW91dCgoKT0+bG9hZFdlYXRoZXIoKSw3MDApOwp9CmNvbnN0IHJlbmRlckJlZm9yZVdlYXRoZXJBdXRvPXJlbmRlcjsKcmVuZGVyPWZ1bmN0aW9uKCl7cmVuZGVyQmVmb3JlV2VhdGhlckF1dG8oKTtjb25zdCBidG49ZG9jdW1lbnQucXVlcnlTZWxlY3RvcignI3dlYXRoZXJCdG4nKTtpZihidG4pYnRuLm9uY2xpY2s9bG9hZFdlYXRoZXI7fQo='
+          auto_js = base64.b64decode(encoded).decode('utf-8')
           text = re.sub(r'\n/\* weather-autogps-v18 \*/.*?(?=\nif\(localStorage\.getItem\(\'todoAdhdTheme\'\))', '', text, flags=re.S)
           marker = "if(localStorage.getItem('todoAdhdTheme')==='dark')"
           text = text.replace(marker, auto_js + '\n' + marker)
-          text = text.replace('}render();\nif(\'serviceWorker\'', '}render();autoLoadWeather();\nif(\'serviceWorker\'')
+          text = text.replace("}render();\nif('serviceWorker'", "}render();autoLoadWeather();\nif('serviceWorker'")
           cal.write_text(text, encoding='utf-8')
-
           sw = Path('sw.js')
           if sw.exists():
               s = sw.read_text(encoding='utf-8')
