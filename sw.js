@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-calendar-viewport-v17";
+const CACHE_NAME = "todoadhd-route-fix-v24";
 
 const ASSETS = [
   "./",
@@ -10,7 +10,9 @@ const ASSETS = [
   "./app-polish-v22.css",
   "./app-polish-v22.js",
   "./app-daily-v23.css",
-  "./app-daily-v23.js"
+  "./app-daily-v23.js",
+  "./route-fix-v24.css",
+  "./route-fix-v24.js"
 ];
 
 function patchCalendarHtml(html) {
@@ -23,6 +25,9 @@ function patchCalendarHtml(html) {
   }
   if (!out.includes("data-app-daily-v23")) {
     out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./app-daily-v23.css?v=23\" data-app-daily-v23>\n</head>").replace("</body>", "<script src=\"./app-daily-v23.js?v=23\" data-app-daily-v23></script>\n</body>");
+  }
+  if (!out.includes("data-route-fix-v24")) {
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./route-fix-v24.css?v=24\" data-route-fix-v24>\n</head>").replace("</body>", "<script src=\"./route-fix-v24.js?v=24\" data-route-fix-v24></script>\n</body>");
   }
   return out;
 }
