@@ -1,0 +1,95 @@
+name: Enable automatic GPS weather
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-weather:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch automatic GPS weather
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          cal = Path('calendar.html')
+          text = cal.read_text(encoding='utf-8')
+
+          auto_js = r'''
+/* weather-autogps-v18 */
+let weatherAutoStarted=false;
+function setWeatherStatus(message){weather={...(weather||{}),temp:weather?.temp??'--',humidity:weather?.humidity??'--',rain:weather?.rain??0,pm25:weather?.pm25??null,advice:message,at:Date.now(),pending:true};store('todoAdhdWeather',weather);try{render()}catch(e){}}
+const loadWeatherOriginal=loadWeather;
+loadWeather=async function(){
+  if(!navigator.geolocation){setWeatherStatus('이 브라우저는 위치 기능을 지원하지 않아.');return}
+  setWeatherStatus('GPS 위치를 확인하는 중이야. 권한창이 뜨면 허용을 눌러줘.');
+  navigator.geolocation.getCurrentPosition(async p=>{
+    try{
+      const {latitude,longitude}=p.coords;
+      const forecastUrl=`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,rain,precipitation&timezone=auto`;
+      const airUrl=`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=pm2_5,pm10&timezone=auto`;
+      const [fj,aj]=await Promise.all([fetch(forecastUrl).then(r=>r.json()),fetch(airUrl).then(r=>r.json()).catch(()=>({current:{}}))]);
+      const c=fj.current||{},aq=aj.current||{};
+      const temp=Math.round(c.temperature_2m??0), humidity=c.relative_humidity_2m??'--', rain=c.rain??c.precipitation??0, pm25=aq.pm2_5?Math.round(aq.pm2_5):null;
+      let advice=rain>0?'비 와서 이동시간을 10분 더 잡는 게 좋아.':temp>=27?'더워서 오후 집중력이 떨어질 수 있어. 중요한 건 오전 쪽으로.':pm25&&pm25>35?'미세먼지가 높은 편이야. 산책보다 실내 루틴이 나아.':'날씨는 무난해. 카페 작업이나 짧은 산책을 끼워도 좋아.';
+      weather={temp,humidity,rain,pm25,advice,at:Date.now(),lat:latitude,lon:longitude,pending:false};
+      store('todoAdhdWeather',weather);render();toast('GPS로 오늘 날씨 불러왔어.');
+    }catch(e){setWeatherStatus('날씨 서버 연결이 잠깐 불안정해. 버튼으로 다시 시도해줘.');}
+  },err=>{
+    const msg=err.code===1?'위치 권한이 막혀 있어. 주소창 왼쪽 자물쇠에서 위치 허용으로 바꾸면 자동 날씨가 켜져.':'GPS 위치를 못 잡았어. 실내면 잠깐 후 다시 시도해줘.';
+    setWeatherStatus(msg);
+  },{enableHighAccuracy:false,timeout:12000,maximumAge:30*60*1000});
+}
+async function autoLoadWeather(){
+  if(weatherAutoStarted)return;
+  if(weather?.at && Date.now()-weather.at<1000*60*60*2 && !weather.pending)return;
+  weatherAutoStarted=true;
+  if(navigator.permissions?.query){
+    try{
+      const perm=await navigator.permissions.query({name:'geolocation'});
+      if(perm.state==='denied'){setWeatherStatus('위치 권한이 꺼져 있어. 주소창 왼쪽 자물쇠에서 위치를 허용해줘.');return}
+      setTimeout(()=>loadWeather(),700);
+      perm.onchange=()=>{if(perm.state==='granted')loadWeather()};
+      return;
+    }catch(e){}
+  }
+  setTimeout(()=>loadWeather(),700);
+}
+const renderBeforeWeatherAuto=render;
+render=function(){renderBeforeWeatherAuto();const btn=document.querySelector('#weatherBtn');if(btn)btn.onclick=loadWeather;}
+          '''
+          text = re.sub(r'\n/\* weather-autogps-v18 \*/.*?(?=\nif\(localStorage\.getItem\(\'todoAdhdTheme\'\))', '', text, flags=re.S)
+          marker = "if(localStorage.getItem('todoAdhdTheme')==='dark')"
+          text = text.replace(marker, auto_js + '\n' + marker)
+          text = text.replace('}render();\nif(\'serviceWorker\'', '}render();autoLoadWeather();\nif(\'serviceWorker\'')
+          cal.write_text(text, encoding='utf-8')
+
+          sw = Path('sw.js')
+          if sw.exists():
+              s = sw.read_text(encoding='utf-8')
+              s = re.sub(r'const CACHE_NAME = "[^"]+";', 'const CACHE_NAME = "todoadhd-weather-autogps-v18";', s)
+              sw.write_text(s, encoding='utf-8')
+          PY
+          git add calendar.html sw.js
+          if git diff --cached --quiet; then
+            echo "No weather changes needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "enable automatic gps weather"
+          git push origin HEAD:main
+          git push origin HEAD:gh-pages --force
