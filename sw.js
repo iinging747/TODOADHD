@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-weather-autogps-v18";
+const CACHE_NAME = "todoadhd-local-auth-v29";
 
 const ASSETS = [
   "./",
@@ -19,7 +19,9 @@ const ASSETS = [
   "./diary-style-v26.js",
   "./auth-v27.css",
   "./auth-v27.js",
-  "./sidebar-fix-v28.css"
+  "./sidebar-fix-v28.css",
+  "./local-auth-v29.css",
+  "./local-auth-v29.js"
 ];
 
 function patchCalendarHtml(html) {
@@ -47,6 +49,9 @@ function patchCalendarHtml(html) {
   }
   if (!out.includes("data-sidebar-fix-v28")) {
     out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./sidebar-fix-v28.css?v=28\" data-sidebar-fix-v28>\n</head>");
+  }
+  if (!out.includes("data-local-auth-v29")) {
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./local-auth-v29.css?v=29\" data-local-auth-v29>\n</head>").replace("</body>", "<script src=\"./local-auth-v29.js?v=29\" data-local-auth-v29></script>\n</body>");
   }
   return out;
 }
