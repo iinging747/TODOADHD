@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-readable-lee-seoyun-v8";
+const CACHE_NAME = "todoadhd-pwa-diary-aligned-v9";
 
 const ENGLISH_STICKERS = [
   "budget.png",
