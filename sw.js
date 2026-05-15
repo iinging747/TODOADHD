@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-diary-handwriting-v5";
+const CACHE_NAME = "todoadhd-assistant-route-clients-v6";
 
 const ENGLISH_STICKERS = [
   "budget.png",
