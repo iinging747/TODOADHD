@@ -1,1 +1,29 @@
-{"name":"정신차려 이 각박한 세상에서, 그렇게 안 살기 프로젝트","short_name":"TODOADHD","start_url":"./preview.html","scope":"./","display":"standalone","background_color":"#f7f8fc","theme_color":"#f7f8fc","description":"ADHD 병렬 진행, 체크메이트 일정표, 감정 조언, 가계부, 쿼카 도장을 담은 개인 웹앱","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23eef4ff'/%3E%3Ccircle cx='256' cy='250' r='128' fill='%23c98f65'/%3E%3Ccircle cx='214' cy='230' r='18' fill='%23293044'/%3E%3Ccircle cx='298' cy='230' r='18' fill='%23293044'/%3E%3Cpath d='M205 292q51 54 102 0' fill='none' stroke='%23293044' stroke-width='26' stroke-linecap='round'/%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "정신차려 이 각박한 세상에서, 그렇게 안 살기 프로젝트",
+  "short_name": "ADHD 다이어리",
+  "description": "ADHD 일정, 감정일기, 가계부, 투자수익, 이동, 클라이언트, 위시리스트를 정리하는 개인비서형 다이어리 웹앱",
+  "start_url": "./calendar.html?v=app-home",
+  "scope": "./",
+  "id": "./calendar.html",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#fff9f4",
+  "theme_color": "#293354",
+  "categories": ["productivity", "lifestyle", "utilities"],
+  "lang": "ko-KR",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23fff9f4'/%3E%3Crect x='78' y='86' width='356' height='340' rx='54' fill='%23fffefd' stroke='%23eadfe8' stroke-width='12'/%3E%3Cpath d='M130 158h252M130 220h252M130 282h190' stroke='%23eadfe8' stroke-width='10' stroke-linecap='round'/%3E%3Ccircle cx='360' cy='330' r='58' fill='%23c98f65'/%3E%3Ccircle cx='338' cy='320' r='8' fill='%23293354'/%3E%3Ccircle cx='382' cy='320' r='8' fill='%23293354'/%3E%3Cpath d='M338 348q22 20 44 0' fill='none' stroke='%23293354' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M138 360l42 38 78-96' fill='none' stroke='%23293354' stroke-width='18' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='44' fill='%23fff9f4'/%3E%3Crect x='28' y='30' width='136' height='132' rx='26' fill='%23fffefd' stroke='%23eadfe8' stroke-width='6'/%3E%3Ccircle cx='132' cy='123' r='25' fill='%23c98f65'/%3E%3Ccircle cx='122' cy='119' r='4' fill='%23293354'/%3E%3Ccircle cx='141' cy='119' r='4' fill='%23293354'/%3E%3Cpath d='M58 126l18 16 34-42' fill='none' stroke='%23293354' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
