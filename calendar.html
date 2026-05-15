@@ -34,7 +34,7 @@ const stickerDefs={
 };
 function stickerType(text=''){return Object.entries(stickerDefs).find(([k,v])=>k!=='fallback'&&k!=='stamp'&&v.rx.test(text))?.[0]||'fallback'}
 function pos(n){return (n*100/5)+'%'}
-function sticker(type='fallback',cls=''){const s=stickerDefs[type]||stickerDefs.fallback;return `<span class="sticker ${cls}" title="${safe(s.label)}"><img src="/stickers/${s.file}" alt="${safe(s.label)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="sprite" data-label="${safe(s.label)}" style="--sx:${pos(s.x)};--sy:${pos(s.y)}"></span></span>`}
+function sticker(type='fallback',cls=''){const s=stickerDefs[type]||stickerDefs.fallback;return `<span class="sticker ${cls}" title="${safe(s.label)}"><img src="./public/stickers/${s.file}" alt="${safe(s.label)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="sprite" data-label="${safe(s.label)}" style="--sx:${pos(s.x)};--sy:${pos(s.y)}"></span></span>`}
 function saveAll(){store('todoAdhdTasks',tasks);store('todoAdhdSpends',spends);store('todoAdhdInvests',invests);store('todoAdhdRoutes',routes);store('todoAdhdClients',clients);store('todoAdhdWishes',wishes);store('todoAdhdDiaries',diaries);store('todoAdhdFocus',focus);store('todoAdhdStreak',streak);}
 function dateAdd(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x} const weekdays=['일','월','화','수','목','금','토'];
 function nextDow(dow,base=new Date()){let diff=(dow-base.getDay()+7)%7; if(diff===0)diff=7; return dateAdd(base,diff)}
