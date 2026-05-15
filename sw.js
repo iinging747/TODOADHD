@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-calendar-viewport-v17";
+const CACHE_NAME = "todoadhd-weather-autogps-v18";
 
 const ASSETS = [
   "./",
