@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sticker-assets-v16";
+const CACHE_NAME = "todoadhd-daily-v23";
 
 const ASSETS = [
   "./",
@@ -8,20 +8,21 @@ const ASSETS = [
   "./diary-patch.css",
   "./diary-patch.js",
   "./app-polish-v22.css",
-  "./app-polish-v22.js"
+  "./app-polish-v22.js",
+  "./app-daily-v23.css",
+  "./app-daily-v23.js"
 ];
 
 function patchCalendarHtml(html) {
   let out = html;
   if (!out.includes("data-diary-patch-v21")) {
-    out = out
-      .replace("</head>", "<link rel=\"stylesheet\" href=\"./diary-patch.css?v=21\" data-diary-patch-v21>\n</head>")
-      .replace("</body>", "<script src=\"./diary-patch.js?v=21\" data-diary-patch-v21></script>\n</body>");
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./diary-patch.css?v=21\" data-diary-patch-v21>\n</head>").replace("</body>", "<script src=\"./diary-patch.js?v=21\" data-diary-patch-v21></script>\n</body>");
   }
   if (!out.includes("data-app-polish-v22")) {
-    out = out
-      .replace("</head>", "<link rel=\"stylesheet\" href=\"./app-polish-v22.css?v=22\" data-app-polish-v22>\n</head>")
-      .replace("</body>", "<script src=\"./app-polish-v22.js?v=22\" data-app-polish-v22></script>\n</body>");
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./app-polish-v22.css?v=22\" data-app-polish-v22>\n</head>").replace("</body>", "<script src=\"./app-polish-v22.js?v=22\" data-app-polish-v22></script>\n</body>");
+  }
+  if (!out.includes("data-app-daily-v23")) {
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./app-daily-v23.css?v=23\" data-app-daily-v23>\n</head>").replace("</body>", "<script src=\"./app-daily-v23.js?v=23\" data-app-daily-v23></script>\n</body>");
   }
   return out;
 }
