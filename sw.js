@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sidebar-fix-v28";
+const CACHE_NAME = "todoadhd-weather-autogps-v18";
 
 const ASSETS = [
   "./",
