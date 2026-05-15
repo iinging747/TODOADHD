@@ -1,0 +1,77 @@
+name: Fix calendar viewport fit
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fit-calendar:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch calendar viewport layout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          cal = Path('calendar.html')
+          text = cal.read_text(encoding='utf-8')
+
+          css = r'''
+    /* viewport-fit-v17 */
+    .day-list{display:none!important}
+    .day{min-height:0!important;aspect-ratio:1/1;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.72);padding:9px;position:relative;overflow:hidden;display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start}
+    .dots{position:static!important;display:flex;gap:4px;margin-top:auto;right:auto!important;top:auto!important}
+    .day-count{margin-top:2px;font-family:var(--body);font-size:11px;font-weight:900;color:var(--muted);white-space:nowrap}
+    .day-count.hot{color:#ef8e91}
+    .mini-stamp{width:24px!important;height:24px!important;right:4px!important;bottom:4px!important}
+    .main-card{display:flex!important;flex-direction:column;height:calc(100vh - 64px);overflow:hidden!important}
+    .cal-wrapper{flex:1;display:flex;flex-direction:column;min-height:0}
+    .calendar{flex:1;grid-auto-rows:1fr}
+    .section-title{margin-bottom:10px!important}
+    .section-title p{display:none!important}
+    @media(max-width:1180px){.main-card{height:calc(100vh - 48px)}}
+    @media(max-width:768px){.main-card{height:calc(100vh - 14px - 96px);min-height:0}.day{border-radius:15px!important;padding:6px!important}.day-count{font-size:10px}.dot{width:5px;height:5px}.section-title h2{font-size:22px}.cal-head h2{font-size:22px}.cal-head{margin-bottom:6px}.week div{font-size:11px}.mini-stamp{width:18px!important;height:18px!important}}
+          '''
+          text = re.sub(r'\n\s*/\* viewport-fit-v17 \*/.*?(?=\n\s*</style>)', '', text, flags=re.S)
+          text = text.replace('</style>', css + '\n  </style>')
+
+          override = r'''
+function renderCalendar(){const y=cursor.getFullYear(),m=cursor.getMonth(),start=new Date(y,m,1),first=start.getDay(),days=new Date(y,m+1,0).getDate(),prev=new Date(y,m,0).getDate();let cells=[];for(let i=0;i<42;i++){const n=i-first+1;let d=n<1?new Date(y,m-1,prev+n):n>days?new Date(y,m+1,n-days):new Date(y,m,n);const k=key(d),list=tasksOn(k),done=list.some(t=>t.done),hot=list.some(t=>t.priority===1&&!t.done),dots=list.slice(0,4).map((t,idx)=>`<i class="dot ${idx===0&&hot?'hot':''}"></i>`).join('');cells.push(`<button class="day ${d.getMonth()!==m?'other':''} ${k===key(selected)?'selected':''}" data-date="${k}"><span class="day-num">${d.getDate()}</span>${list.length?`<span class="dots">${dots}</span><span class="day-count ${hot?'hot':''}">${list.length}개</span>`:''}${done?sticker('stamp','mini-stamp'):''}</button>`)}
+$('#main').innerHTML=`<section class="section-title"><div><h2>달력</h2><p>일정 미리보기는 오른쪽 패널에서 보고, 달력은 한눈에 보기 좋게 고정했어.</p></div><button class="primary" id="goAdd">일정 추가</button></section><div class="cal-wrapper"><div class="cal-head"><button class="ghost" id="prevM">이전</button><h2>${y}년 ${m+1}월</h2><button class="ghost" id="nextM">다음</button></div><div class="week">${weekdays.map(w=>`<div>${w}</div>`).join('')}</div><div class="calendar">${cells.join('')}</div></div>`;$('#goAdd').onclick=()=>{view='add';render()};$('#prevM').onclick=()=>{cursor=new Date(y,m-1,1);render()};$('#nextM').onclick=()=>{cursor=new Date(y,m+1,1);render()};document.querySelectorAll('.day').forEach(b=>b.onclick=()=>{selected=new Date(b.dataset.date);render()});}
+function renderPanel(){const k=key(selected),list=tasksOn(k),done=list.filter(t=>t.done).length,hot=list.find(t=>t.priority===1&&!t.done);$('#panel').innerHTML=`<section class="briefing" style="margin-bottom:18px"><div><h3>오늘의 흐름</h3><p id="briefText">${briefText()}</p><div class="brief-list">${briefPills()}</div></div><div class="weather-box" id="weatherBox">${weatherHtml()}<button class="ghost" id="weatherBtn" style="margin-top:10px;width:100%">날씨 갱신</button></div></section><h3>선택 날짜 상세</h3><p class="muted"><b>${k}</b><br>날짜를 누르면 전체 일정은 여기서 확인해.</p><div class="divider"></div><h3>오늘 할 일</h3><div class="cards">${list.length?list.map(t=>`<div class="task-card ${t.done?'done':''}">${sticker(t.type,'task-sticker')}<div><p class="task-title">${safe(t.time)} · ${safe(t.text)}</p><div class="task-meta"><span class="meta">${safe(t.priorityLabel||priorityOf(t.text,t.date).label)}</span>${t.recurrence?`<span class="meta">${safe(t.recurrence.label)}</span>`:''}</div><p class="muted">${safe(t.reason||'한 행동만 보면 충분해.')}</p></div><button class="check ${t.done?'on':''}" data-check="${t.id}">${t.done?'✓':''}</button></div>`).join(''):'<p class="muted">이 날은 아직 비어 있어. 일부러 비워도 괜찮아.</p>'}</div><button class="primary" id="panelAdd" style="width:100%;margin-top:12px">이 날짜에 추가</button><div class="divider"></div><h3>AI 우선순위</h3><p class="muted">${hot?`${hot.text}: ${hot.priorityLabel}`:'급한 불은 없어. 가벼운 것부터 잡아도 돼.'}</p><div class="stat-row"><div class="stat"><b>${done}/${list.length}</b><span>완료</span></div><div class="stat"><b>${streak.count||0}일</b><span>streak</span></div></div><div class="divider"></div><h3>날씨 / 이동 / 투자</h3><p class="muted">${weather?weather.advice:'날씨를 불러오면 이동과 집중 조언을 붙여줄게.'}<br>${routes[0]?`최근 장소: ${safe(routes[0].place)}`:'이동 탭에서 약속 장소를 저장해봐.'}<br>${invests.some(i=>i.date===k)?'투자 복기 완료':'투자 복기 알림 대기'}</p><div class="divider"></div><h3>오늘 받은 스티커</h3><div style="display:flex;gap:8px;flex-wrap:wrap">${list.filter(t=>t.done).slice(0,5).map(t=>sticker(t.type,'task-sticker')).join('')||sticker('stamp','task-sticker')}</div>`;$('#weatherBtn').onclick=loadWeather;$('#panelAdd').onclick=()=>{view='add';render()};document.querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>toggleTask(b.dataset.check));}
+          '''
+          text = re.sub(r'\n/\* viewport-js-v17 \*/.*?(?=\nfunction render\(\))', '', text, flags=re.S)
+          text = text.replace('function render(){', '/* viewport-js-v17 */\n' + override + '\nfunction render(){')
+
+          cal.write_text(text, encoding='utf-8')
+
+          sw = Path('sw.js')
+          if sw.exists():
+              s = sw.read_text(encoding='utf-8')
+              s = re.sub(r'const CACHE_NAME = "[^"]+";', 'const CACHE_NAME = "todoadhd-calendar-viewport-v17";', s)
+              sw.write_text(s, encoding='utf-8')
+          PY
+
+          git add calendar.html sw.js
+          if git diff --cached --quiet; then
+            echo "No calendar viewport changes needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fit calendar grid to viewport"
+          git push origin HEAD:main
+          git push origin HEAD:gh-pages --force
