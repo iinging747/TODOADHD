@@ -1,32 +1,25 @@
-const CACHE_NAME = "todoadhd-action-parser-v14";
+const CACHE_NAME = "todoadhd-calendar-ux-v15";
 
 const ASSETS = [
   "./",
   "./index.html",
-  "./preview.html",
- "./calendar.html",
-  "./manifest.webmanifest",
-  "./public/stickers/sticker-sheet.png"
+  "./calendar.html",
+  "./manifest.webmanifest"
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => Promise.all(ASSETS.map((asset) => cache.add(asset).catch(() => null))))
-  );
-  self.skipWaiting();
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
-  );
-  self.clients.claim();
+self.addEventListener("activate", event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+  event.respondWith(fetch(event.request).then(response => {
+    const copy = response.clone();
+    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+    return response;
+  }).catch(() => caches.match(event.request).then(cached => cached || caches.match("./calendar.html"))));
 });
