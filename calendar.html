@@ -93,6 +93,7 @@ function renderPanel(){const k=key(selected),list=tasksOn(k),done=list.filter(t=
 
 function render(){renderMenus(); if(view==='calendar')renderCalendar(); if(view==='add')renderAdd(); if(view==='focus')renderFocus(); if(view==='stickers')renderStickerPage(); if(view==='mood')renderMood(); if(view==='money')renderMoney(); if(view==='invest')renderInvest(); if(view==='route')renderRoute(); if(view==='clients')renderClients(); if(view==='wish')renderWish(); renderPanel();}
 $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem('todoAdhdTheme',document.body.classList.contains('dark')?'dark':'light')}; 
+
 /* weather-autogps-v18 */
 let weatherAutoStarted=false;
 function setWeatherStatus(message){weather={...(weather||{}),temp:weather?.temp??'--',humidity:weather?.humidity??'--',rain:weather?.rain??0,pm25:weather?.pm25??null,advice:message,at:Date.now(),pending:true};store('todoAdhdWeather',weather);try{render()}catch(e){}}
