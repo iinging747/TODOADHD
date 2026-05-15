@@ -16,17 +16,42 @@
   <script>
     (async function(){
       try {
+        const clean = new URL(location.href).searchParams.get('clean') === '1';
         if ('serviceWorker' in navigator) {
           const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(reg => reg.update().catch(() => {})));
+          await Promise.all(regs.map(reg => reg.unregister().catch(() => {})));
         }
-        const response = await fetch('./calendar.html?v=direct-v26-' + Date.now(), { cache: 'no-store' });
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(key => caches.delete(key).catch(() => {})));
+        }
+        if (!clean) {
+          location.replace('./calendar-v26.html?clean=1&t=' + Date.now());
+          return;
+        }
+        const response = await fetch('./calendar.html?base-v26=' + Date.now(), { cache: 'no-store' });
         let html = await response.text();
-        if (!html.includes('data-diary-style-v26')) {
-          html = html
-            .replace('</head>', '<link rel="stylesheet" href="./diary-style-v26.css?v=26-direct" data-diary-style-v26>\n</head>')
-            .replace('</body>', '<script src="./diary-style-v26.js?v=26-direct" data-diary-style-v26><\\/script>\n</body>');
-        }
+        const styles = [
+          'diary-patch.css?v=21-direct',
+          'app-polish-v22.css?v=22-direct',
+          'app-daily-v23.css?v=23-direct',
+          'route-fix-v24.css?v=24-direct',
+          'memo-v25.css?v=25-direct',
+          'diary-style-v26.css?v=26-direct'
+        ].map(href => `<link rel="stylesheet" href="./${href}" data-direct-diary-style>`).join('\n');
+        const scripts = [
+          'diary-patch.js?v=21-direct',
+          'app-polish-v22.js?v=22-direct',
+          'app-daily-v23.js?v=23-direct',
+          'route-fix-v24.js?v=24-direct',
+          'memo-v25.js?v=25-direct',
+          'diary-style-v26.js?v=26-direct'
+        ].map(src => `<script src="./${src}" data-direct-diary-style><\\/script>`).join('\n');
+        html = html
+          .replace(/<link[^>]+data-(diary-patch-v21|app-polish-v22|app-daily-v23|route-fix-v24|memo-v25|diary-style-v26)[^>]*>/g, '')
+          .replace(/<script[^>]+data-(diary-patch-v21|app-polish-v22|app-daily-v23|route-fix-v24|memo-v25|diary-style-v26)[\s\S]*?<\\/script>/g, '')
+          .replace('</head>', styles + '\n</head>')
+          .replace('</body>', scripts + '\n</body>');
         document.open();
         document.write(html);
         document.close();
