@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-assistant-route-clients-v6";
+const CACHE_NAME = "todoadhd-wishlist-wannabe-assistant-v7";
 
 const ENGLISH_STICKERS = [
   "budget.png",
