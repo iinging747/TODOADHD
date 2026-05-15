@@ -107,6 +107,7 @@ $('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.
 
 
 
+
 /* weather-autogps-v18 */
 let weatherAutoStarted=false;
 function setWeatherStatus(message){weather={...(weather||{}),temp:weather?.temp??'--',humidity:weather?.humidity??'--',rain:weather?.rain??0,pm25:weather?.pm25??null,advice:message,at:Date.now(),pending:true};store('todoAdhdWeather',weather);try{render()}catch(e){}}
