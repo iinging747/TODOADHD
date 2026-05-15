@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#eadbd2" />
+  <title>TODOADHD Diary</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#eadbd2;color:#443d3b;font-family:system-ui,-apple-system,sans-serif}
+    .loader{padding:24px 28px;background:#fffdf9;border:1px solid #dfcec5;box-shadow:0 18px 44px rgba(101,82,74,.13);text-align:center}
+  </style>
+</head>
+<body>
+  <div class="loader">다이어리 앱 여는 중...</div>
+  <script>
+    (async function(){
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(reg => reg.update().catch(() => {})));
+        }
+        const response = await fetch('./calendar.html?v=direct-v26-' + Date.now(), { cache: 'no-store' });
+        let html = await response.text();
+        if (!html.includes('data-diary-style-v26')) {
+          html = html
+            .replace('</head>', '<link rel="stylesheet" href="./diary-style-v26.css?v=26-direct" data-diary-style-v26>\n</head>')
+            .replace('</body>', '<script src="./diary-style-v26.js?v=26-direct" data-diary-style-v26><\\/script>\n</body>');
+        }
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (error) {
+        document.body.innerHTML = '<div class="loader">앱을 여는 중 문제가 생겼어. 새로고침해줘.</div>';
+      }
+    })();
+  </script>
+</body>
+</html>
