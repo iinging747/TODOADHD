@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-weather-autogps-v18";
+const CACHE_NAME = "todoadhd-diary-style-v26";
 
 const ASSETS = [
   "./",
@@ -14,7 +14,9 @@ const ASSETS = [
   "./route-fix-v24.css",
   "./route-fix-v24.js",
   "./memo-v25.css",
-  "./memo-v25.js"
+  "./memo-v25.js",
+  "./diary-style-v26.css",
+  "./diary-style-v26.js"
 ];
 
 function patchCalendarHtml(html) {
@@ -33,6 +35,9 @@ function patchCalendarHtml(html) {
   }
   if (!out.includes("data-memo-v25")) {
     out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./memo-v25.css?v=25\" data-memo-v25>\n</head>").replace("</body>", "<script src=\"./memo-v25.js?v=25\" data-memo-v25></script>\n</body>");
+  }
+  if (!out.includes("data-diary-style-v26")) {
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./diary-style-v26.css?v=26\" data-diary-style-v26>\n</head>").replace("</body>", "<script src=\"./diary-style-v26.js?v=26\" data-diary-style-v26></script>\n</body>");
   }
   return out;
 }
