@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sticker-assets-v16";
+const CACHE_NAME = "todoadhd-calendar-viewport-v17";
 
 const ASSETS = [
   "./",
