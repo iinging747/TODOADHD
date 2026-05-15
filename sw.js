@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-real-stickers-v4";
+const CACHE_NAME = "todoadhd-diary-handwriting-v5";
 
 const ENGLISH_STICKERS = [
   "budget.png",
