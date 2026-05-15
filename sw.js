@@ -1,10 +1,10 @@
-const CACHE_NAME = "todoadhd-natural-schedule-v13";
+const CACHE_NAME = "todoadhd-action-parser-v14";
 
 const ASSETS = [
   "./",
   "./index.html",
   "./preview.html",
-  "./calendar.html",
+ "./calendar.html",
   "./manifest.webmanifest",
   "./public/stickers/sticker-sheet.png"
 ];
