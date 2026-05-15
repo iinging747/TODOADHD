@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-wishlist-wannabe-assistant-v7";
+const CACHE_NAME = "todoadhd-readable-lee-seoyun-v8";
 
 const ENGLISH_STICKERS = [
   "budget.png",
