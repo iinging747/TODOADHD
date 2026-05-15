@@ -78,13 +78,20 @@ jobs:
             git add public/stickers/workout.png
           fi
 
-          if [ -f calendar.html ]; then
-            perl -0pi -e 's#src="/stickers/\$\{s\.file\}"#src="./public/stickers/${s.file}"#g' calendar.html
-          fi
-
-          if [ -f sw.js ]; then
-            perl -0pi -e 's#const CACHE_NAME = "[^"]+";#const CACHE_NAME = "todoadhd-sticker-assets-v16";#' sw.js
-          fi
+          python - <<'PY'
+          from pathlib import Path
+          cal = Path('calendar.html')
+          if cal.exists():
+              text = cal.read_text(encoding='utf-8')
+              text = text.replace('src="/stickers/${s.file}"', 'src="./public/stickers/${s.file}"')
+              cal.write_text(text, encoding='utf-8')
+          sw = Path('sw.js')
+          if sw.exists():
+              text = sw.read_text(encoding='utf-8')
+              import re
+              text = re.sub(r'const CACHE_NAME = "[^"]+";', 'const CACHE_NAME = "todoadhd-sticker-assets-v16";', text)
+              sw.write_text(text, encoding='utf-8')
+          PY
 
           git add calendar.html sw.js public/stickers || true
 
