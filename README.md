@@ -33,4 +33,4 @@ node serve-preview.mjs
 
 # TODOADHD
 
-배포 패치 트리거: diary-photos-v19
+배포 패치 트리거: daily-v23
