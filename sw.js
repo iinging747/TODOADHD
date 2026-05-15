@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sticker-assets-v16";
+const CACHE_NAME = "todoadhd-app-polish-v22";
 
 const ASSETS = [
   "./",
@@ -6,14 +6,24 @@ const ASSETS = [
   "./calendar.html",
   "./manifest.webmanifest",
   "./diary-patch.css",
-  "./diary-patch.js"
+  "./diary-patch.js",
+  "./app-polish-v22.css",
+  "./app-polish-v22.js"
 ];
 
 function patchCalendarHtml(html) {
-  if (html.includes("diary-patch-v21")) return html;
-  return html
-    .replace("</head>", "<link rel=\"stylesheet\" href=\"./diary-patch.css?v=21\" data-diary-patch-v21>\n</head>")
-    .replace("</body>", "<script src=\"./diary-patch.js?v=21\" data-diary-patch-v21></script>\n</body>");
+  let out = html;
+  if (!out.includes("data-diary-patch-v21")) {
+    out = out
+      .replace("</head>", "<link rel=\"stylesheet\" href=\"./diary-patch.css?v=21\" data-diary-patch-v21>\n</head>")
+      .replace("</body>", "<script src=\"./diary-patch.js?v=21\" data-diary-patch-v21></script>\n</body>");
+  }
+  if (!out.includes("data-app-polish-v22")) {
+    out = out
+      .replace("</head>", "<link rel=\"stylesheet\" href=\"./app-polish-v22.css?v=22\" data-app-polish-v22>\n</head>")
+      .replace("</body>", "<script src=\"./app-polish-v22.js?v=22\" data-app-polish-v22></script>\n</body>");
+  }
+  return out;
 }
 
 self.addEventListener("install", event => {
