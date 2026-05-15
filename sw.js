@@ -1,4 +1,4 @@
-const CACHE_NAME = "todoadhd-sticker-assets-v16";
+const CACHE_NAME = "todoadhd-memo-v25";
 
 const ASSETS = [
   "./",
@@ -12,7 +12,9 @@ const ASSETS = [
   "./app-daily-v23.css",
   "./app-daily-v23.js",
   "./route-fix-v24.css",
-  "./route-fix-v24.js"
+  "./route-fix-v24.js",
+  "./memo-v25.css",
+  "./memo-v25.js"
 ];
 
 function patchCalendarHtml(html) {
@@ -28,6 +30,9 @@ function patchCalendarHtml(html) {
   }
   if (!out.includes("data-route-fix-v24")) {
     out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./route-fix-v24.css?v=24\" data-route-fix-v24>\n</head>").replace("</body>", "<script src=\"./route-fix-v24.js?v=24\" data-route-fix-v24></script>\n</body>");
+  }
+  if (!out.includes("data-memo-v25")) {
+    out = out.replace("</head>", "<link rel=\"stylesheet\" href=\"./memo-v25.css?v=25\" data-memo-v25>\n</head>").replace("</body>", "<script src=\"./memo-v25.js?v=25\" data-memo-v25></script>\n</body>");
   }
   return out;
 }
