@@ -16,7 +16,8 @@
   <script>
     (async function(){
       try {
-        const clean = new URL(location.href).searchParams.get('clean') === '1';
+        const params = new URL(location.href).searchParams;
+        const clean = params.get('clean') === '1';
         if ('serviceWorker' in navigator) {
           const regs = await navigator.serviceWorker.getRegistrations();
           await Promise.all(regs.map(reg => reg.unregister().catch(() => {})));
@@ -38,7 +39,8 @@
           'route-fix-v24.css?v=24-direct',
           'memo-v25.css?v=25-direct',
           'diary-style-v26.css?v=26-direct'
-        ].map(href => `<link rel="stylesheet" href="./${href}" data-direct-diary-style>`).join('\n');
+        ].map(function(href){ return '<link rel="stylesheet" href="./' + href + '" data-direct-diary-style>'; }).join('\n');
+        const closeScript = '<' + '/script>';
         const scripts = [
           'diary-patch.js?v=21-direct',
           'app-polish-v22.js?v=22-direct',
@@ -46,10 +48,10 @@
           'route-fix-v24.js?v=24-direct',
           'memo-v25.js?v=25-direct',
           'diary-style-v26.js?v=26-direct'
-        ].map(src => `<script src="./${src}" data-direct-diary-style><\\/script>`).join('\n');
+        ].map(function(src){ return '<script src="./' + src + '" data-direct-diary-style>' + closeScript; }).join('\n');
+        const oldLinkPattern = new RegExp('<link[^>]+data-(diary-patch-v21|app-polish-v22|app-daily-v23|route-fix-v24|memo-v25|diary-style-v26)[^>]*>', 'g');
         html = html
-          .replace(/<link[^>]+data-(diary-patch-v21|app-polish-v22|app-daily-v23|route-fix-v24|memo-v25|diary-style-v26)[^>]*>/g, '')
-          .replace(/<script[^>]+data-(diary-patch-v21|app-polish-v22|app-daily-v23|route-fix-v24|memo-v25|diary-style-v26)[\s\S]*?<\\/script>/g, '')
+          .replace(oldLinkPattern, '')
           .replace('</head>', styles + '\n</head>')
           .replace('</body>', scripts + '\n</body>');
         document.open();
