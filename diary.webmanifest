@@ -1,0 +1,26 @@
+{
+  "name": "정신차려 TODOADHD Diary",
+  "short_name": "TODOADHD Diary",
+  "description": "나만 보는 감성 ADHD 다이어리 웹앱",
+  "start_url": "./diary.html?v=diary-webapp-v1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eadbd2",
+  "theme_color": "#eadbd2",
+  "lang": "ko-KR",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%23eadbd2'/%3E%3Crect x='34' y='28' width='124' height='136' rx='10' fill='%23fffdf9' stroke='%23cdb7ad' stroke-width='6'/%3E%3Cpath d='M58 76h76M58 100h76M58 124h54' stroke='%23816f68' stroke-width='9' stroke-linecap='round'/%3E%3Ccircle cx='58' cy='48' r='9' fill='%23c49089'/%3E%3Ccircle cx='84' cy='48' r='9' fill='%23c49089'/%3E%3Ccircle cx='110' cy='48' r='9' fill='%23c49089'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23eadbd2'/%3E%3Crect x='90' y='72' width='332' height='368' rx='28' fill='%23fffdf9' stroke='%23cdb7ad' stroke-width='16'/%3E%3Cpath d='M154 200h204M154 264h204M154 328h148' stroke='%23816f68' stroke-width='24' stroke-linecap='round'/%3E%3Ccircle cx='154' cy='128' r='24' fill='%23c49089'/%3E%3Ccircle cx='224' cy='128' r='24' fill='%23c49089'/%3E%3Ccircle cx='294' cy='128' r='24' fill='%23c49089'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
